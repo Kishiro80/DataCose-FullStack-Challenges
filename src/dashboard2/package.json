@@ -13,11 +13,8 @@
         "lintfix": "prettier --write --list-different . && npm run lint:js -- --fix"
     },
     "dependencies": {
-        "@formkit/auto-animate": "^0.8.0",
         "@nuxtjs/auth": "^4.9.1",
         "@nuxtjs/axios": "^5.13.6",
-        "@nuxtjs/vuetify": "^1.12.3",
-        "@riophae/vue-treeselect": "^0.4.0",
         "bootstrap": "^4.6.2",
         "bootstrap-vue": "^2.22.0",
         "core-js": "^3.25.3",
@@ -37,18 +34,13 @@
         "@nuxt/typescript-build": "^2.1.0",
         "@nuxtjs/eslint-config-typescript": "^11.0.0",
         "@nuxtjs/eslint-module": "^3.1.0",
-        "@sidebase/nuxt-auth": "^0.6.0-beta.6",
         "@types/lodash": "^4.14.194",
-        "autoprefixer": "^10.4.16",
         "eslint": "^8.24.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-nuxt": "^4.0.0",
         "eslint-plugin-vue": "^9.5.1",
-        "nuxt-quasar-ui": "^2.0.6",
-        "postcss": "^8.4.31",
         "prettier": "^2.7.1",
         "sass": "^1.62.1",
-        "sass-loader": "10.1.1",
-        "tailwindcss": "^3.3.3"
+        "sass-loader": "10.1.1"
     }
 }

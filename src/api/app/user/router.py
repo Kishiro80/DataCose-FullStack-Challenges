@@ -6,11 +6,12 @@ from app.models import User
 from app.user.schemas import createSchema, responseSchema, updateSchema
 from app.crud import CRUDBase
 from app.database import get_db
+from app.auth.services import get_password_hash
 
 model = User
 createSchema = createSchema
-responseSchema = createSchema
-updateSchema = createSchema
+responseSchema = responseSchema
+updateSchema = updateSchema
 crud_fn = CRUDBase[model, createSchema,
                    responseSchema, updateSchema](model=model)
 
@@ -22,10 +23,20 @@ root = 'user'
 
 
 @router.post(f"/{root}/create/")
-async def create(input: createSchema, db: Session = Depends(get_db)):
-    data = crud_fn.create(db, input)
-    return data
+async def create(
+    input: createSchema, db: Session = Depends(get_db)
+):
+    # Hash the user's password before creating the user
+    hashed_password = get_password_hash(input.password)
+    user_data = input.dict()
+    user_data["password"] = hashed_password
 
+    # Create the user with the hashed password
+    try:
+        user = crud_fn.create(db, createSchema(**user_data))
+        return user
+    except:
+        return {"status": "fail"}
 # , response_model=responseSchema
 
 

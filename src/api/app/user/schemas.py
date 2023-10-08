@@ -18,3 +18,8 @@ class responseSchema(baseSchema):
 
 class updateSchema(baseSchema):
     id: int
+
+
+class changePassSchema(baseSchema):
+    id: int
+    old_password: str

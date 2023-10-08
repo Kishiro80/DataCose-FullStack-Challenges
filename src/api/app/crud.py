@@ -4,6 +4,7 @@ from app.config import Base
 from typing import TypeVar, Generic, Type, Optional, List
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text  # Import the text function
 
 
 def get_db(request: Request = Depends()):
@@ -41,7 +42,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, ResponseSchemaType, UpdateSc
     ) -> List[ResponseSchemaType]:
         query = db.query(self.model)
         if condition:
-            query = query.filter(condition)
+            query = query.filter(text(condition))
         return query.offset(skip).limit(limit).all()
 
     def update(

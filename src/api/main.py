@@ -9,8 +9,24 @@ from app.auth.router import router as auth_router
 from fastapi import FastAPI, HTTPException, Depends
 from app.auth.services import check_jwt_token, get_current_user
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+allowed_origins = [
+    "http://localhost:3000",
+    "https://example.com",
+]
+
+# Configure CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,  # Set this to True if you allow cookies with CORS requests
+    # You can specify specific HTTP methods (e.g., ["GET", "POST"])
+    allow_methods=["*"],
+    # You can specify specific headers (e.g., ["Authorization"])
+    allow_headers=["*"],
+)
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)

@@ -6,6 +6,7 @@ from app.user.schemas import createSchema, responseSchema, updateSchema
 from app.models import User
 from app.crud import CRUDBase
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.database import get_db
 from jose import JWTError, jwt
 
 from passlib.context import CryptContext
@@ -69,22 +70,21 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 # dependencies.py
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         # Decode and verify the token using the SECRET_KEY and ALGORITHM
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         # Extract user claims (e.g., username) from the token payload
-        username: str = payload.get("sub")
-        if username is None:
+        id: str = payload.get("id")
+        user = crud_fn.get_multi_with_condition(
+            db, condition=f"id = '{id}'", skip=0, limit=1)[0]
+        print(user)
+        if user.username is None:
             raise HTTPException(status_code=401, detail="Invalid token")
 
-        # You should implement database logic here to retrieve the user based on the username
-        # Replace the following line with your database query
-        # user = get_user_by_username(username)
-
         # For this example, we create a User object with a username
-        user = User(username=username)
+        user = user
 
         return user
     except JWTError:

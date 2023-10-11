@@ -46,16 +46,11 @@ export default {
     // Modules: https://go.nuxtjs.dev/config-modules
     modules: [
         // https://go.nuxtjs.dev/bootstrap
-        ['bootstrap-vue/nuxt', { icons: true, css: true }],
         // https://go.nuxtjs.dev/axios
         '@nuxtjs/axios',
+        '@nuxtjs/auth',
+        '@nuxtjs/bootstrap-vue',
     ],
-
-    publicRuntimeConfig: {
-        axios: {
-            baseURL: process.env.BASEURL || 'http://127.0.0.1:8000',
-        },
-    },
 
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
     axios: {
@@ -65,4 +60,23 @@ export default {
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {},
+    auth: {
+        strategies: {
+            local: {
+                endpoints: {
+                    login: { url: '/auth/login', method: 'post', propertyName: 'access_token' },
+                    logout: { url: '/auth/logout', method: 'post' },
+                    user: { url: '/auth/users/me', method: 'get', propertyName: 'user' },
+                },
+                tokenRequired: true,
+                tokenType: 'Bearer',
+            },
+        },
+        redirect: {
+            login: '/login',
+            logout: '/login',
+            callback: '/login',
+            home: '/About',
+        },
+    },
 };

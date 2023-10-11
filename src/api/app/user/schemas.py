@@ -1,10 +1,13 @@
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 
-class baseSchema(BaseModel):
+class nopassSchema(BaseModel):
     username: str
     email: str
+
+
+class baseSchema(nopassSchema):
     password: str
 
 
@@ -12,11 +15,15 @@ class createSchema(baseSchema):
     pass
 
 
-class responseSchema(baseSchema):
+class responseSchema(nopassSchema):
     id: int
 
 
-class updateSchema(baseSchema):
+class authResponseSchema(BaseModel):
+    user: responseSchema
+
+
+class updateSchema(nopassSchema):
     id: int
 
 

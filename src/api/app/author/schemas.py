@@ -1,6 +1,6 @@
+from typing import lists
 
 from pydantic import BaseModel
-from typing import List
 
 
 class BaseSchema(BaseModel):
@@ -13,7 +13,7 @@ class createSchema(BaseSchema):
 
 class responseSchema(BaseSchema):
     id: int
-    # books: List[int] = []
+    books: lists[int] = []
 
     class Config:
         orm_mode = True

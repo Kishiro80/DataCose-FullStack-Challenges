@@ -133,3 +133,5 @@ terraform.rc
 
 service-account*.json
 notebook.ipynb
+
+*/test.py

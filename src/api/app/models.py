@@ -1,7 +1,8 @@
 # app/models.py
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
+
 from app.config import Base
 
 
@@ -19,7 +20,7 @@ author_book_association = Table(
     "author_book_association",
     Base.metadata,
     Column("author_id", Integer, ForeignKey("authors.id")),
-    Column("book_id", Integer, ForeignKey("books.id"))
+    Column("book_id", Integer, ForeignKey("books.id")),
 )
 
 
@@ -30,8 +31,7 @@ class Author(Base):
     name = Column(String, index=True)
 
     # Define the many-to-many relationship between Author and Book
-    books = relationship(
-        "Book", secondary=author_book_association, back_populates="authors")
+    books = relationship("Book", secondary=author_book_association, back_populates="authors")
 
 
 class Book(Base):
@@ -42,5 +42,4 @@ class Book(Base):
     num_pages = Column(Integer)
 
     # Define the many-to-many relationship between Book and Author
-    authors = relationship(
-        "Author", secondary=author_book_association, back_populates="books")
+    authors = relationship("Author", secondary=author_book_association, back_populates="books")

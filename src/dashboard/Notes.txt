@@ -1,2 +1,0 @@
-I  used sidebase nuxt auth, 
-I used middleware auth

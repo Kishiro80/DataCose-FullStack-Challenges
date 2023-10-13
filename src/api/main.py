@@ -1,15 +1,16 @@
 # main.py
 
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 from app import models
-from app.config import engine
-from app.user.router import router as user_router
+from app.auth.router import router as auth_router
+from app.auth.services import check_jwt_token, get_current_user
 from app.author.router import router as author_router
 from app.books.router import router as books_router
-from app.auth.router import router as auth_router
-from fastapi import FastAPI, HTTPException, Depends
-from app.auth.services import check_jwt_token, get_current_user
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+from app.config import engine
+from app.user.router import router as user_router
 
 app = FastAPI()
 allowed_origins = [
@@ -66,4 +67,5 @@ app.include_router(auth_router)
 # Run the app
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

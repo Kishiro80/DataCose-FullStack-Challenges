@@ -1,23 +1,20 @@
 # auth.py
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, Depends, Request
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from app.user.schemas import createSchema, responseSchema, updateSchema
-from app.models import User
-from app.crud import CRUDBase
-from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.database import get_db
-from jose import JWTError, jwt
-
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from app.crud import CRUDBase
+from app.database import get_db
+from app.models import User
+from app.user.schemas import createSchema, responseSchema, updateSchema
+
 model = User
-createSchema = createSchema
-responseSchema = createSchema
-updateSchema = createSchema
-crud_fn = CRUDBase[model, createSchema,
-                   responseSchema, updateSchema](model=model)
+crud_fn = CRUDBase[model, createSchema, responseSchema, updateSchema](model=model)
 # This should be a secure and secret key for hashing and verifying passwords
 PASSWORD_HASH_SECRET = "your-secret-password-hash-secret"
 
@@ -31,7 +28,7 @@ fake_users_db = {
         "username": "testuser",
         # Hashed password for "testpassword"
         "password": "$2b$12$xEVdR7dMoCtmf7kFL9jsj.LHki.L3IY.UuCNF1GjXelNqeyd1lG3m",
-    }
+    },
 }
 
 
@@ -42,18 +39,19 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return password_hasher.hash(password)
 
+
 # Function to authenticate a user based on username and password
 
 
 def authenticate_user(db: Session, username: str, password: str):
     # In your route handler
-    user = crud_fn.get_multi_with_condition(
-        db, condition=f"username = '{username}'", skip=0, limit=1)
+    user = crud_fn.get_multi_with_condition(db, condition=f"username = '{username}'", skip=0, limit=1)
     print(user[0])
     if user is None or not verify_password(password, user[0].password):
         return None  # User not found or password is incorrect
     del user[0].password
     return user[0]  # Return a User object if authentication succeeds
+
 
 # Function to create an access token (JWT) for an authenticated user
 
@@ -67,6 +65,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
 # dependencies.py
 
 
@@ -77,8 +77,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
         # Extract user claims (e.g., username) from the token payload
         id: str = payload.get("id")
-        user = crud_fn.get_multi_with_condition(
-            db, condition=f"id = '{id}'", skip=0, limit=1)[0]
+        user = crud_fn.get_multi_with_condition(db, condition=f"id = '{id}'", skip=0, limit=1)[0]
         print(user)
         if user.username is None:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -90,6 +89,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         # Token validation failed; raise an HTTPException with a 401 status code
         raise HTTPException(status_code=401, detail="Token validation failed")
+
 
 # Middleware function to check the validity of JWT tokens in incoming requests
 

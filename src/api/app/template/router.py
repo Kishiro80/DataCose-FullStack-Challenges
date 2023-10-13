@@ -1,15 +1,14 @@
-from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-from app.models import User
-from app.user.schemas import createSchema, responseSchema, updateSchema
 from app.crud import CRUDBase
 from app.database import get_db
+from app.models import User
+from app.user.schemas import createSchema, responseSchema, updateSchema
 
 model = User
-root = 'user'
-crud_fn = CRUDBase[User, createSchema,
-                   responseSchema, updateSchema](model=model)
+root = "user"
+crud_fn = CRUDBase[User, createSchema, responseSchema, updateSchema](model=model)
 
 router = APIRouter()
 
@@ -18,6 +17,7 @@ router = APIRouter()
 async def create(input: createSchema, db: Session = Depends(get_db)):
     data = crud_fn.create(db, input)
     return data
+
 
 # , response_model=responseSchema
 
@@ -29,6 +29,7 @@ async def read(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f"{root} not found")
     return data
 
+
 # , response_model=list[responseSchema]
 
 
@@ -37,14 +38,15 @@ async def reads(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     datas = crud_fn.get_multi(db, skip=skip, limit=limit)
     return datas
 
+
 # , response_model=list[responseSchema]
 
 
 @router.get(f"/{root}/search/")
 async def searchs(query: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    datas = crud_fn.get_multi_with_condition(
-        db, condition=query, skip=skip, limit=limit)
+    datas = crud_fn.get_multi_with_condition(db, condition=query, skip=skip, limit=limit)
     return datas
+
 
 # , response_model=responseSchema
 
@@ -56,6 +58,7 @@ async def update(id: int, input: updateSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f"{root} not found")
     data = crud_fn.update(db, data, input)
     return data
+
 
 # , response_model=None
 

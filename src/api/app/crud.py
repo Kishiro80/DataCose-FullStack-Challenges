@@ -1,10 +1,11 @@
 from functools import wraps
-from app.config import SessionLocal
-from app.config import Base
-from typing import TypeVar, Generic, Type, Optional, List
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlalchemy.orm import Session
+from typing import Generic, List, Optional, Type, TypeVar
+
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import text  # Import the text function
+from sqlalchemy.orm import Session
+
+from app.config import Base, SessionLocal
 
 
 def get_db(request: Request = Depends()):
@@ -19,35 +20,39 @@ ModelType = TypeVar("ModelType")
 
 # Dependency to get the database session
 
+
 class CRUDBase(Generic[ModelType, CreateSchemaType, ResponseSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: type[ModelType]):
         self.model = model
 
-    def create(self,  db: Session, obj_in: CreateSchemaType) -> ResponseSchemaType:
+    def create(self, db: Session, obj_in: CreateSchemaType) -> ResponseSchemaType:
         db_obj = self.model(**obj_in.dict())
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
         return db_obj
+
     # db: Session = Depends(get_db)
 
-    def get(self, db: Session, id: int) -> Optional[ResponseSchemaType]:
+    def get(self, db: Session, id: int) -> ResponseSchemaType | None:
         return db.query(self.model).filter(self.model.id == id).first()
 
-    def get_multi(self, db: Session, skip: int = 0, limit: int = 100) -> List[ResponseSchemaType]:
+    def get_multi(self, db: Session, skip: int = 0, limit: int = 100) -> list[ResponseSchemaType]:
         return db.query(self.model).offset(skip).limit(limit).all()
 
     def get_multi_with_condition(
-        self,   db: Session, condition: Optional[str] = None, skip: int = 0, limit: int = 100
-    ) -> List[ResponseSchemaType]:
+        self,
+        db: Session,
+        condition: str | None = None,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[ResponseSchemaType]:
         query = db.query(self.model)
         if condition:
             query = query.filter(text(condition))
         return query.offset(skip).limit(limit).all()
 
-    def update(
-        self,   db: Session, db_obj: ModelType, obj_in: UpdateSchemaType
-    ) -> ResponseSchemaType:
+    def update(self, db: Session, db_obj: ModelType, obj_in: UpdateSchemaType) -> ResponseSchemaType:
         for field in obj_in.dict(exclude_unset=True):
             setattr(db_obj, field, obj_in.dict()[field])
         db.add(db_obj)

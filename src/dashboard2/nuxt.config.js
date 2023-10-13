@@ -76,7 +76,16 @@ export default {
             login: '/login',
             logout: '/login',
             callback: '/login',
-            home: '/About',
+            home: '/',
         },
+    },
+
+    generate: {
+        fallback: true,
+    },
+
+    // Define the custom error page
+    generate: {
+        fallback: 'custom-404',
     },
 };

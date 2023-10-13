@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from app.config import SessionLocal
 
 # Dependency to get the database session

@@ -1,6 +1,7 @@
 from schemas import createSchema, responseSchema, updateSchema
-from app.models import User
+
 from app.crud import CRUDBase
+from app.models import User
 
 model = User
 createSchema = createSchema

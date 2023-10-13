@@ -134,4 +134,9 @@ terraform.rc
 service-account*.json
 notebook.ipynb
 
+#test file
 */test.py
+
+#template file
+
+template/

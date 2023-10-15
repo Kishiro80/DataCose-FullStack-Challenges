@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
 
 from app.author.schemas import createSchema, responseSchema, updateSchema
 from app.crud import CRUDBase
 from app.database import get_db
-from app.models import Author
+from app.models import Author, Book
 
 model = Author
 root = "author"
@@ -28,7 +29,7 @@ async def create(input: createSchema, db: Session = Depends(get_db)):
 #
 
 
-@router.get(f"/{root}/{{id}}/", response_model=responseSchema)
+@router.get(f"/{root}/id/", response_model=responseSchema)
 async def read(id: int, db: Session = Depends(get_db)):
     data = crud_fn.get(db, id)
     if data is None:
@@ -39,10 +40,33 @@ async def read(id: int, db: Session = Depends(get_db)):
 # , response_model=list[responseSchema]
 
 
-@router.get(f"/{root}/")
+@router.get(f"/{root}/all/")
 async def reads(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     datas = crud_fn.get_multi(db, skip=skip, limit=limit)
     return datas
+
+
+@router.get(f"/{root}/bookCount/")
+async def readAndCount(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    subquery = (
+        db.query(Author.id.label("author_id"), func.count(Book.id).label("book_count"))
+        .outerjoin(Author.book)
+        .group_by(Author.id)
+        .subquery()
+    )
+
+    authors = (
+        db.query(Author, subquery.c.book_count)
+        .options(joinedload(Author.book))
+        .outerjoin(subquery, Author.id == subquery.c.author_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    author_data = [{**author.__dict__, "book_count": book_count} for author, book_count in authors]
+
+    return author_data
 
 
 # , response_model=list[responseSchema]
@@ -69,7 +93,7 @@ async def update(id: int, input: updateSchema, db: Session = Depends(get_db)):
 # , response_model=None
 
 
-@router.delete(f"/{root}/{{id}}/")
+@router.delete(f"/{root}/")
 async def delete(id: int, db: Session = Depends(get_db)):
     data = crud_fn.get(db, id)
     if data is None:

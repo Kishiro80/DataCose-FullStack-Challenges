@@ -1,4 +1,4 @@
-from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -9,11 +9,12 @@ class baseSchema(BaseModel):
 
 
 class createSchema(baseSchema):
-    pass
+    author_id: int
 
 
 class updateSchema(baseSchema):
     id: int
+    author_id: int
 
     class Config:
         orm_mode = True
@@ -21,11 +22,17 @@ class updateSchema(baseSchema):
 
 class responseSchema(baseSchema):
     id: int
+    author: Optional["AuthorresponseSchema"]
 
     class Config:
         orm_mode = True
 
 
-# createSchema.update_forward_refs()
-# updateSchema.update_forward_refs()
-# responseSchema.update_forward_refs()
+class AuthorresponseSchema(BaseModel):
+    id: int
+    name: str
+
+
+createSchema.update_forward_refs()
+updateSchema.update_forward_refs()
+responseSchema.update_forward_refs()

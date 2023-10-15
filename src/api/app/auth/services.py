@@ -15,21 +15,10 @@ from app.user.schemas import createSchema, responseSchema, updateSchema
 
 model = User
 crud_fn = CRUDBase[model, createSchema, responseSchema, updateSchema](model=model)
-# This should be a secure and secret key for hashing and verifying passwords
-PASSWORD_HASH_SECRET = "your-secret-password-hash-secret"
 
 # Create an instance of the CryptContext class for password hashing
 password_hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-# Sample user data (you should replace this with your database logic)
-fake_users_db = {
-    "testuser": {
-        "username": "testuser",
-        # Hashed password for "testpassword"
-        "password": "$2b$12$xEVdR7dMoCtmf7kFL9jsj.LHki.L3IY.UuCNF1GjXelNqeyd1lG3m",
-    },
-}
 
 
 def verify_password(plain_password, hashed_password):
@@ -96,17 +85,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 async def check_jwt_token(request: Request):
     # Retrieve the token from the "Authorization" header
-    print(1)
     token = request.headers.get("Authorization")
     if not token:
         raise HTTPException(status_code=401, detail="Token not provided")
 
-    print(1)
     # Check if the token starts with "Bearer "
     if not token.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid token format")
 
-    print(1)
     # Extract the token without the "Bearer " prefix
     token = token.split(" ")[1]
 

@@ -1,6 +1,6 @@
-from typing import lists
+from pydantic import BaseModel, Field
 
-from pydantic import BaseModel
+from app.book.schemas import responseSchema as BookresponseSchema
 
 
 class BaseSchema(BaseModel):
@@ -13,7 +13,14 @@ class createSchema(BaseSchema):
 
 class responseSchema(BaseSchema):
     id: int
-    books: lists[int] = []
+    book: list["BookresponseSchema"] = Field(default_factory=list)
+
+    class Config:
+        orm_mode = True
+
+
+class cleanResponseSchema(BaseSchema):
+    id: int
 
     class Config:
         orm_mode = True
@@ -21,3 +28,6 @@ class responseSchema(BaseSchema):
 
 class updateSchema(BaseSchema):
     id: int
+
+
+responseSchema.update_forward_refs()

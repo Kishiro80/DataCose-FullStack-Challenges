@@ -1,18 +1,18 @@
-# main.py
-
-from fastapi import Depends, FastAPI, HTTPException
+# from app import models
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app import models
 from app.auth.router import router as auth_router
-from app.auth.services import check_jwt_token, get_current_user
+from app.auth.services import check_jwt_token
 from app.author.router import router as author_router
-from app.books.router import router as books_router
-from app.config import engine
+from app.book.router import router as book_router
+
+# from app.config import engine
 from app.user.router import router as user_router
 
 app = FastAPI()
+
 allowed_origins = [
     "http://localhost:3000",
     "https://example.com",
@@ -22,15 +22,12 @@ allowed_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_credentials=True,  # Set this to True if you allow cookies with CORS requests
-    # You can specify specific HTTP methods (e.g., ["GET", "POST"])
-    allow_methods=["*"],
-    # You can specify specific headers (e.g., ["Authorization"])
-    allow_headers=["*"],
+    allow_credentials=True,
 )
 
+
 # Create database tables
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 # Middleware function to check JWT token for all routes
 
@@ -39,7 +36,13 @@ models.Base.metadata.create_all(bind=engine)
 async def check_authentication(request, call_next):
     # Check if the requested route should be excluded from authentication
     excluded_paths = ["/auth/", "/user/create/"]
+    # print("checking 1", request.method)
 
+    if request.method == "OPTIONS":
+        return JSONResponse(
+            content=None,
+            headers={"Access-Control-Allow-Headers ": "*", "Access-Control-Allow-Origin": "*"},
+        )
     # Check if the requested route should be excluded from authentication
     for path in excluded_paths:
         # print(request.url.path)
@@ -49,6 +52,8 @@ async def check_authentication(request, call_next):
 
     # Apply JWT token validation logic
     try:
+        # token = request.headers.get("Authorization")
+        # print(token)
         await check_jwt_token(request)
         return await call_next(request)
     except HTTPException as h:
@@ -61,10 +66,10 @@ async def check_authentication(request, call_next):
 # Include the routers in the main app
 app.include_router(user_router)
 app.include_router(author_router)
-app.include_router(books_router)
+app.include_router(book_router)
 app.include_router(auth_router)
+
 # ... Define more routes or include routers for other entities ...
-# Run the app
 if __name__ == "__main__":
     import uvicorn
 

@@ -4,9 +4,6 @@ from app.crud import CRUDBase
 from app.models import User
 
 model = User
-createSchema = createSchema
-responseSchema = createSchema
-updateSchema = createSchema
 crud_fn = CRUDBase[model, createSchema, responseSchema, updateSchema](model=model)
 
 # Create a new user

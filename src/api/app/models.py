@@ -1,6 +1,6 @@
 # app/models.py
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.config import Base
@@ -15,31 +15,21 @@ class User(Base):
     password = Column(String)
 
 
-# Define the association table for the many-to-many relationship between Author and Book
-author_book_association = Table(
-    "author_book_association",
-    Base.metadata,
-    Column("author_id", Integer, ForeignKey("authors.id")),
-    Column("book_id", Integer, ForeignKey("books.id")),
-)
-
-
 class Author(Base):
-    __tablename__ = "authors"
+    __tablename__ = "author"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-
-    # Define the many-to-many relationship between Author and Book
-    books = relationship("Book", secondary=author_book_association, back_populates="authors")
+    book = relationship("Book", back_populates="author")
 
 
 class Book(Base):
-    __tablename__ = "books"
+    __tablename__ = "book"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     num_pages = Column(Integer)
 
-    # Define the many-to-many relationship between Book and Author
-    authors = relationship("Author", secondary=author_book_association, back_populates="books")
+    # Define the one-to-many relationship between Book and Author
+    author_id = Column(Integer, ForeignKey("author.id"))
+    author = relationship("Author", back_populates="book")

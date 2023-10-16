@@ -13,7 +13,8 @@ root = "author"
 createSchema = createSchema
 responseSchema = responseSchema
 updateSchema = updateSchema
-crud_fn = CRUDBase[model, createSchema, responseSchema, updateSchema](model=model)
+crud_fn = CRUDBase[model, createSchema,
+                   responseSchema, updateSchema](model=model)
 
 
 router = APIRouter()
@@ -49,7 +50,8 @@ async def reads(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.get(f"/{root}/bookCount/")
 async def readAndCount(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     subquery = (
-        db.query(Author.id.label("author_id"), func.count(Book.id).label("book_count"))
+        db.query(Author.id.label("author_id"),
+                 func.count(Book.id).label("book_count"))
         .outerjoin(Author.book)
         .group_by(Author.id)
         .subquery()
@@ -64,7 +66,8 @@ async def readAndCount(skip: int = 0, limit: int = 100, db: Session = Depends(ge
         .all()
     )
 
-    author_data = [{**author.__dict__, "book_count": book_count} for author, book_count in authors]
+    author_data = [{**author.__dict__, "book_count": book_count}
+                   for author, book_count in authors]
 
     return author_data
 
@@ -74,7 +77,8 @@ async def readAndCount(skip: int = 0, limit: int = 100, db: Session = Depends(ge
 
 @router.get(f"/{root}/search/")
 async def searchs(query: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    datas = crud_fn.get_multi_with_condition(db, condition=query, skip=skip, limit=limit)
+    datas = crud_fn.get_multi_with_condition(
+        db, condition=query, skip=skip, limit=limit)
     return datas
 
 
@@ -86,6 +90,7 @@ async def update(id: int, input: updateSchema, db: Session = Depends(get_db)):
     data = crud_fn.get(db, id)
     if data is None:
         raise HTTPException(status_code=404, detail=f"{root} not found")
+    print("try update", data)
     data = crud_fn.update(db, data, input)
     return data
 

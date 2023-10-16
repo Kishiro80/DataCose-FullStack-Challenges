@@ -23,6 +23,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
+    allow_methods=["*"],
 )
 
 
@@ -41,7 +42,10 @@ async def check_authentication(request, call_next):
     if request.method == "OPTIONS":
         return JSONResponse(
             content=None,
-            headers={"Access-Control-Allow-Headers ": "*", "Access-Control-Allow-Origin": "*"},
+            headers={"Access-Control-Allow-Headers ": "*",
+                     "Access-Control-Allow-Origin": "*",
+                     "Access-Control-Allow-Methods":"*"},
+                     
         )
     # Check if the requested route should be excluded from authentication
     for path in excluded_paths:

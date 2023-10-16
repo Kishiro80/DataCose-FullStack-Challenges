@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from app.book.schemas import responseSchema as BookresponseSchema
+from app.book.schemas import baseSchema as BookbaseSchema
 
 
 class BaseSchema(BaseModel):
@@ -28,6 +29,7 @@ class cleanResponseSchema(BaseSchema):
 
 class updateSchema(BaseSchema):
     id: int
+    book: list["BookbaseSchema"] = Field(default_factory=list)
 
 
 responseSchema.update_forward_refs()
